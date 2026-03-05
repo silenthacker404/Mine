@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Concert Stage 🎤</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body {
+    background:#000;
+    min-height:100vh;
+    overflow-x:hidden;
+    font-family:'Poppins',sans-serif;
+    position:relative;
+  }
+
+  /* ── Stage floor gradient ── */
+  .stage-floor {
+    position:fixed; bottom:0; left:0; right:0;
+    height:35vh;
+    background: linear-gradient(to top, #1a0a00 0%, #2d1200 40%, transparent 100%);
+    pointer-events:none; z-index:1;
+  }
+
+  /* ── Spotlight canvas ── */
+  #spot-canvas { position:fixed; inset:0; pointer-events:none; z-index:2; }
+
+  /* ── Crowd canvas ── */
+  #crowd-canvas { position:fixed; bottom:0; left:0; right:0; height:35vh; pointer-events:none; z-index:3; }
+
+  /* ── Stage curtains ── */
+  .curtain-left, .curtain-right {
+    position:fixed; top:0; bottom:0; width:55%;
+    z-index:100;
+    transition: transform 1.6s cubic-bezier(.77,0,.175,1);
+  }
+  .curtain-left  { left:0;  transform:translateX(0); background: linear-gradient(90deg, #4a0010 0%, #800020 50%, #b71c1c 80%, #c62828 100%); }
+  .curtain-right { right:0; transform:translateX(0); background: linear-gradient(-90deg,#4a0010 0%, #800020 50%, #b71c1c 80%, #c62828 100%); }
+  /* curtain folds */
+  .curtain-left::before, .curtain-right::before,
+  .curtain-left::after,  .curtain-right::after {
+    content:'';
+    position:absolute; top:0; bottom:0; width:30%;
+    background: rgba(0,0,0,.2);
+    border-radius: 0 50% 50% 0;
+  }
+  .curtain-left::before  { left:30%; }
+  .curtain-left::after   { left:60%; background:rgba(255,255,255,.06); border-radius:50% 0 0 50%; }
+  .curtain-right::before { right:30%; border-radius:50% 0 0 50%; }
+  .curtain-right::after  { right:60%; background:rgba(255,255,255,.06); border-radius:0 50% 50% 0; }
+
+  .curtain-left.open  { transform:translateX(-90%); }
+  .curtain-right.open { transform:translateX(90%); }
+
+  /* ── Opening text overlay ── */
+  #opening-overlay {
+    position:fixed; inset:0; z-index:50;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    pointer-events:none;
+    background: rgba(0,0,0,0);
+    transition: opacity .8s ease;
+  }
+  #opening-overlay.hide {
+    opacity:0;
+  }
+  .opening-name {
+    font-family:'Great Vibes', cursive;
+    font-size: clamp(3rem, 10vw, 7rem);
+    background: linear-gradient(135deg, #ffd700, #ff8c00, #fff, #ffd700);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    background-size:300% 100%;
+    filter: drop-shadow(0 0 30px rgba(255,200,0,.7));
+    opacity:0;
+    transform: scale(.8);
+    transition: opacity .8s ease, transform .8s ease;
+    animation: goldShimmer 3s linear infinite;
+  }
+  .opening-name.show { opacity:1; transform:scale(1); }
+
+  .opening-sub {
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size: clamp(1rem, 3.5vw, 2rem);
+    color:#ffd700;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    opacity:0;
+    transform: translateY(12px);
+    transition: opacity .8s ease .3s, transform .8s ease .3s;
+    text-shadow: 0 0 20px rgba(255,200,0,.8);
+    margin-top:.5rem;
+  }
+  .opening-sub.show { opacity:1; transform:translateY(0); }
+
+  @keyframes goldShimmer { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+
+  /* ── Stage content area ── */
+  #stage {
+    position:relative; z-index:10;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 0 1rem 4rem;
+  }
+
+  /* stage arch */
+  .stage-arch {
+    width:100%; max-width:900px;
+    border: 3px solid rgba(255,200,0,.3);
+    border-bottom:none;
+    border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+    box-shadow: 0 0 40px rgba(255,180,0,.2), inset 0 0 40px rgba(255,180,0,.05);
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    height:80vh; pointer-events:none;
+  }
+
+  /* stage lights top row */
+  .stage-lights {
+    position:fixed; top:0; left:0; right:0;
+    height:60px; z-index:15;
+    display:flex; justify-content:space-around; align-items:flex-start;
+    padding-top:4px;
+  }
+  .light-bulb {
+    width:14px; height:22px;
+    background: radial-gradient(circle at 50% 30%, #fff 0%, #ffd700 40%, #ff8c00 80%);
+    border-radius:50% 50% 30% 30%;
+    box-shadow: 0 0 12px #ffd700, 0 0 30px rgba(255,200,0,.5);
+    animation: blinkLight 1.5s ease-in-out infinite;
+  }
+  .light-bulb:nth-child(odd)  { animation-delay:.3s; }
+  .light-bulb:nth-child(3n)   { background: radial-gradient(circle at 50% 30%,#fff 0%,#ff6ec7 40%,#e91e8c 80%); box-shadow:0 0 12px #ff6ec7,0 0 30px rgba(255,110,200,.5); }
+  .light-bulb:nth-child(4n)   { background: radial-gradient(circle at 50% 30%,#fff 0%,#80d8ff 40%,#0091ea 80%); box-shadow:0 0 12px #80d8ff,0 0 30px rgba(0,145,234,.5); animation-delay:.6s; }
+  @keyframes blinkLight { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ── Video container ── */
+  .video-stage {
+    margin:0 auto;
+    width:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative;
+    animation:fadeInStage .8s ease both;
+  }
+  @keyframes fadeInStage { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+
+  /* 9:16 reel-style wrapper */
+  .video-wrapper {
+    position:relative;
+    width: min(72vw, calc(72vh * 9/16));
+    aspect-ratio: 9/16;
+    border: 3px solid rgba(255,200,0,.4);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow: 0 0 60px rgba(255,150,0,.4), 0 0 120px rgba(255,50,0,.2);
+    background:#000;
+    margin:0 auto;
+  }
+  .video-wrapper video {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; background:#000;
+  }
+  .video-wrapper iframe {
+    position:absolute; inset:0; width:100%; height:100%; border:none;
+  }
+
+  /* now playing label */
+  .now-playing {
+    font-family:'Poppins', sans-serif;
+    font-size: clamp(.7rem, 2vw, .9rem);
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:#ffd700;
+    margin-bottom:.6rem;
+    display:flex; align-items:center; gap:.5rem;
+    justify-content:center;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .now-playing span.dot { width:8px; height:8px; background:#ff3d00; border-radius:50%; box-shadow:0 0 8px #ff3d00; }
+
+  /* video nav dots */
+  .vid-nav {
+    display:flex; gap:.6rem; justify-content:center; margin-top:1rem;
+  }
+  .vid-dot {
+    width:10px; height:10px; border-radius:50%;
+    background:rgba(255,200,0,.3); border:1px solid rgba(255,200,0,.5);
+    cursor:pointer; transition:.2s;
+  }
+  .vid-dot.active { background:#ffd700; box-shadow:0 0 10px #ffd700; }
+
+  /* ── End question ── */
+  #end-section {
+    display:none;
+    flex-direction:column; align-items:center; gap:1.5rem;
+    margin-top:2rem;
+    animation: slideUpFade .8s ease both;
+  }
+  @keyframes slideUpFade { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+  .end-question {
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    text-align:center;
+    filter: drop-shadow(0 0 16px rgba(255,200,0,.5));
+  }
+
+  .btn-row { display:flex; gap:1.2rem; flex-wrap:wrap; justify-content:center; }
+
+  .btn-yes {
+    font-family:'Poppins', sans-serif; font-weight:600;
+    font-size: clamp(.85rem,2.5vw,1.05rem);
+    padding:.85rem 2.4rem;
+    background: linear-gradient(135deg,#ffd700,#ff8c00);
+    color:#1a0800; border:none; border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 6px 24px rgba(255,140,0,.5);
+    transition:transform .2s, box-shadow .2s;
+    text-decoration:none; display:inline-block;
+    animation: pulseYes 2.5s ease-in-out infinite;
+  }
+  .btn-yes:hover { transform:scale(1.06) translateY(-2px); }
+  @keyframes pulseYes { 0%,100%{box-shadow:0 6px 24px rgba(255,140,0,.5)} 50%{box-shadow:0 6px 36px rgba(255,140,0,.8),0 0 0 8px rgba(255,140,0,.12)} }
+
+  .btn-no {
+    font-family:'Poppins', sans-serif; font-weight:600;
+    font-size: clamp(.85rem,2.5vw,1.05rem);
+    padding:.85rem 2.4rem;
+    background:rgba(255,255,255,.1);
+    color:#ffd599;
+    border:1px solid rgba(255,200,100,.3);
+    border-radius:999px; cursor:pointer;
+    position:fixed; z-index:500;
+    transition: left .22s ease, top .22s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- Curtains -->
+<div class="curtain-left"  id="curtL"></div>
+<div class="curtain-right" id="curtR"></div>
+
+<!-- Opening text overlay -->
+<div id="opening-overlay">
+  <h1 class="opening-name">Bhoomi</h1>
+  <p class="opening-sub">The Singer &amp; Rapper…</p>
+</div>
+
+<!-- Stage lights top row -->
+<div class="stage-lights" id="stageLights"></div>
+
+<!-- Spotlights / crowd canvas -->
+<canvas id="spot-canvas"></canvas>
+<canvas id="crowd-canvas"></canvas>
+<div class="stage-floor"></div>
+
+<div id="stage">
+  <div class="stage-arch"></div>
+
+  <div class="video-stage" id="videoStage" style="display:none">
+    <div class="now-playing"><span class="dot"></span> Now Playing Live</div>
+    <div class="video-wrapper" id="vidWrapper">
+      <!-- video injected by JS -->
+    </div>
+    <div class="vid-nav" id="vidNav"></div>
+  </div>
+
+  <div id="end-section">
+    <p class="end-question">🌍 Dusri Bhoomi pe chale ?? 🚀</p>
+    <div class="btn-row">
+      <a href="page4.html" class="btn-yes">✨ Haan, Chalte Hai! ✨</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Stage light bulbs ── */
+const lightsRow = document.getElementById('stageLights');
+for(let i=0; i<Math.floor(innerWidth/30); i++) {
+  const b = document.createElement('div');
+  b.className='light-bulb';
+  lightsRow.appendChild(b);
+}
+window.addEventListener('resize',()=>{
+  lightsRow.innerHTML='';
+  for(let i=0;i<Math.floor(innerWidth/30);i++){const b=document.createElement('div');b.className='light-bulb';lightsRow.appendChild(b);}
+});
+
+/* ── Spotlight canvas ── */
+const sCanvas = document.getElementById('spot-canvas');
+const sCtx = sCanvas.getContext('2d');
+function resizeS(){ sCanvas.width=innerWidth; sCanvas.height=innerHeight; }
+window.addEventListener('resize',resizeS); resizeS();
+
+const spots=[
+  {x:.2,y:0,hue:45,  angle:0,speed:.005},
+  {x:.5,y:0,hue:200, angle:1,speed:.007},
+  {x:.8,y:0,hue:320, angle:2,speed:.004},
+  {x:.35,y:0,hue:15, angle:3,speed:.006},
+  {x:.65,y:0,hue:120,angle:4,speed:.005},
+];
+function drawSpots(){
+  sCtx.clearRect(0,0,sCanvas.width,sCanvas.height);
+  spots.forEach(s=>{
+    s.angle+=s.speed;
+    const cx = s.x*sCanvas.width + Math.sin(s.angle)*sCanvas.width*.12;
+    const cy = sCanvas.height*.7 + Math.cos(s.angle*.7)*80;
+    const grad=sCtx.createRadialGradient(cx,cy,0,cx,cy,sCanvas.height*.5);
+    grad.addColorStop(0,`hsla(${s.hue},100%,70%,.18)`);
+    grad.addColorStop(.4,`hsla(${s.hue},100%,50%,.07)`);
+    grad.addColorStop(1,'transparent');
+    sCtx.fillStyle=grad;
+    sCtx.fillRect(0,0,sCanvas.width,sCanvas.height);
+    // beam from top
+    const beamGrad=sCtx.createLinearGradient(s.x*sCanvas.width,0,cx,cy);
+    beamGrad.addColorStop(0,`hsla(${s.hue},100%,70%,.12)`);
+    beamGrad.addColorStop(1,'transparent');
+    sCtx.fillStyle=beamGrad;
+    sCtx.beginPath();
+    sCtx.moveTo(s.x*sCanvas.width-20,0);
+    sCtx.lineTo(s.x*sCanvas.width+20,0);
+    sCtx.lineTo(cx+60,cy);
+    sCtx.lineTo(cx-60,cy);
+    sCtx.closePath();
+    sCtx.fill();
+  });
+  requestAnimationFrame(drawSpots);
+}
+drawSpots();
+
+/* ── Crowd canvas ── */
+const cCanvas=document.getElementById('crowd-canvas');
+const cCtx=cCanvas.getContext('2d');
+function resizeC(){cCanvas.width=innerWidth; cCanvas.height=cCanvas.parentElement?cCanvas.parentElement.offsetHeight:innerHeight*.35;}
+window.addEventListener('resize',resizeC); resizeC();
+
+const hands=[];
+const handCount=Math.floor(innerWidth/22);
+for(let i=0;i<handCount;i++){
+  hands.push({
+    x:(i+.5)*innerWidth/handCount + (Math.random()-.5)*10,
+    baseY: cCanvas.height*.6 + Math.random()*cCanvas.height*.3,
+    phase: Math.random()*Math.PI*2,
+    speed: .02+Math.random()*.03,
+    height: 18+Math.random()*22,
+    hue: 30+Math.random()*60,
+    lit: Math.random()>.5,
+    litTimer: Math.random()*60,
+  });
+}
+
+let cf=0;
+function drawCrowd(){
+  cCtx.clearRect(0,0,cCanvas.width,cCanvas.height);
+  cf++;
+  hands.forEach(h=>{
+    h.phase+=h.speed;
+    h.litTimer--;
+    if(h.litTimer<=0){ h.lit=Math.random()>.4; h.litTimer=30+Math.random()*90; }
+    const y=h.baseY - Math.abs(Math.sin(h.phase))*h.height;
+    // phone light
+    if(h.lit){
+      const lg=cCtx.createRadialGradient(h.x,y,0,h.x,y,30);
+      lg.addColorStop(0,`hsla(${h.hue},100%,80%,.5)`);
+      lg.addColorStop(1,'transparent');
+      cCtx.fillStyle=lg; cCtx.fillRect(h.x-30,y-30,60,60);
+    }
+    // arm
+    cCtx.strokeStyle=`hsla(${h.hue},40%,${h.lit?70:25}%,.8)`;
+    cCtx.lineWidth=4; cCtx.lineCap='round';
+    cCtx.beginPath();
+    cCtx.moveTo(h.x, h.baseY+5);
+    cCtx.lineTo(h.x, y+8);
+    cCtx.stroke();
+    // phone rect
+    cCtx.fillStyle=h.lit?`hsla(${h.hue},100%,85%,.9)`:'rgba(80,60,40,.6)';
+    cCtx.fillRect(h.x-4, y, 8, 12);
+    if(h.lit){
+      cCtx.shadowColor=`hsl(${h.hue},100%,70%)`;
+      cCtx.shadowBlur=15;
+      cCtx.fillRect(h.x-3,y+1,6,10);
+      cCtx.shadowBlur=0;
+    }
+  });
+  requestAnimationFrame(drawCrowd);
+}
+drawCrowd();
+
+/* ── Sequenced show flow ──
+   0.6s  → curtains start opening
+   2.2s  → curtains fully open → show name
+   2.5s  → sub-title fades in
+   5.5s  → name holds for 3s, then fades out
+   6.3s  → video stage slides in
+*/
+const overlay      = document.getElementById('opening-overlay');
+const openingName  = document.querySelector('.opening-name');
+const openingSub   = document.querySelector('.opening-sub');
+
+setTimeout(() => {
+  // Step 1 – open curtains
+  document.getElementById('curtL').classList.add('open');
+  document.getElementById('curtR').classList.add('open');
+
+  // Step 2 – show name after curtains open
+  setTimeout(() => {
+    openingName.classList.add('show');
+    setTimeout(() => openingSub.classList.add('show'), 350);
+
+    // Step 3 – after 3 seconds of glory, fade everything out and start video
+    setTimeout(() => {
+      overlay.classList.add('hide');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        startShow();
+      }, 850);
+    }, 3200);
+
+  }, 1700); // curtain open animation is 1.6s
+
+}, 600);
+
+/* ══════════════════════════════════════════════════════
+   ✏️  ADD YOUR VIDEOS HERE — 3 types supported:
+
+   Local file:   { type: 'file',    src: 'video1.mp4',        title: 'Song Name' }
+   YouTube:      { type: 'youtube', id:  'dQw4w9WgXcQ',       title: 'Song Name' }
+   Google Drive: { type: 'drive',   src: 'FULL_DRIVE_SHARE_URL_OR_FILE_ID', title: 'Song Name' }
+                  → Paste the full "Anyone with link" share URL — ID is extracted automatically.
+                  → Make sure sharing is set to "Anyone with the link → Viewer".
+   ══════════════════════════════════════════════════════ */
+const VIDEOS = [
+  { type: 'file',  src: '31.mp4',  title: 'Performance 1' },
+  { type: 'file',  src: '32.mp4',  title: 'Performance 2' },
+  { type: 'drive', src: '33.mp4', title: 'Performance 3' },
+  // { type: 'youtube', id: 'YOUR_YT_VIDEO_ID', title: 'Song Title' },
+];
+
+/* ── Extract Google Drive file ID from any share URL format ── */
+function getDriveId(url) {
+  if (!url || !url.includes('/')) return url;          // already a raw ID
+  const m1 = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);  // /file/d/ID/view
+  if (m1) return m1[1];
+  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/); // ?id=ID or open?id=ID
+  if (m2) return m2[1];
+  return null;
+}
+
+let currentVid = 0;
+
+function buildNavDots() {
+  const nav = document.getElementById('vidNav');
+  nav.innerHTML = '';
+  VIDEOS.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'vid-dot' + (i === currentVid ? ' active' : '');
+    d.onclick = () => loadVideo(i);
+    nav.appendChild(d);
+  });
+}
+
+/* ── "Next" overlay button for YouTube & Drive (no ended event available) ── */
+function loadVideo(idx) {
+  currentVid = idx;
+  const wrapper = document.getElementById('vidWrapper');
+  const v = VIDEOS[idx];
+
+  /* Local .mp4 — onended auto-advances, then shows the question automatically */
+  wrapper.innerHTML = `<video autoplay controls playsinline><source src="${v.src}" type="video/mp4"/></video>`;
+  const vid = wrapper.querySelector('video');
+  vid.onended = () => {
+    if (currentVid < VIDEOS.length - 1) { loadVideo(currentVid + 1); }
+    else { showEnd(); }
+  };
+
+  buildNavDots();
+}
+function showEnd(){
+  document.getElementById('videoStage').style.display='none';
+  const end=document.getElementById('end-section');
+  end.style.display='flex';
+  // show & place the runaway No button
+  const nb=document.getElementById('noBtn');
+  nb.style.display='block';
+  placeNoBtn();
+}
+
+function startShow(){
+  document.getElementById('videoStage').style.display='block';
+  buildNavDots();
+  loadVideo(0);
+}
+
+/* ── Runaway No ── */
+const noBtn=document.getElementById('noBtn');
+function placeNoBtn(){
+  const m=90;
+  noBtn.style.left=(m+Math.random()*(innerWidth-m*2))+'px';
+  noBtn.style.top=(m+Math.random()*(innerHeight-m*2))+'px';
+}
+let runningNo=false;
+function runAway(){
+  if(runningNo)return; runningNo=true;
+  const m=90;
+  noBtn.style.transition='left .22s ease,top .22s ease';
+  noBtn.style.left=(m+Math.random()*(innerWidth-m*2))+'px';
+  noBtn.style.top=(m+Math.random()*(innerHeight-m*2))+'px';
+  setTimeout(()=>runningNo=false,260);
+}
+noBtn.addEventListener('click',e=>{e.preventDefault();runAway();});
+</script>
+</body>
+</html>

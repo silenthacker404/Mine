@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Don Ka Office 😎</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:#0a0a12;
+  min-height:100vh;
+  overflow-x:hidden;
+  font-family:'Poppins',sans-serif;
+  position:relative;
+}
+
+/* ════════════════════════════
+   CITY + SKY BACKGROUND
+════════════════════════════ */
+#sky-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ── Office room overlay ── */
+.office-room{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+}
+
+/* ceiling */
+.ceiling{
+  position:absolute;top:0;left:0;right:0;height:12%;
+  background:linear-gradient(to bottom,#1a1208,#2a1e0a);
+  box-shadow:0 4px 30px rgba(0,0,0,.6);
+}
+/* ceiling light fixture */
+.ceiling-light{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:clamp(60px,15vw,120px);
+  height:clamp(40px,10vw,80px);
+  background:linear-gradient(to bottom,#2a1e0a,#1a1208);
+  border-radius:0 0 50% 50%;
+  box-shadow:0 0 60px rgba(255,180,80,.3),0 0 120px rgba(255,140,40,.15);
+}
+/* warm glow from light */
+.ceiling-glow{
+  position:absolute;top:10%;left:50%;transform:translateX(-50%);
+  width:80vw;height:60vh;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,160,60,.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* floor */
+.floor{
+  position:absolute;bottom:0;left:0;right:0;height:22%;
+  background:linear-gradient(to top,#0d0a06,#1a1208);
+}
+/* floor reflection */
+.floor::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(255,140,40,.06),transparent);
+}
+/* floor tiles */
+.floor::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(255,255,255,.03) 79px,rgba(255,255,255,.03) 80px),
+             repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(255,255,255,.03) 79px,rgba(255,255,255,.03) 80px);
+}
+
+/* left wall panel */
+.wall-left{
+  position:absolute;top:0;bottom:0;left:0;width:8%;
+  background:linear-gradient(to right,#120e06,#1e1608);
+}
+.wall-right{
+  position:absolute;top:0;bottom:0;right:0;width:8%;
+  background:linear-gradient(to left,#120e06,#1e1608);
+}
+
+/* bookshelf left */
+.bookshelf{
+  position:absolute;top:12%;left:0;width:9%;height:66%;
+  background:#1a1208;
+  border-right:2px solid rgba(255,140,40,.15);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:.5rem .3rem;gap:.2rem;overflow:hidden;
+}
+.book{
+  border-radius:2px 2px 0 0;
+  flex-shrink:0;
+}
+
+/* glass panel frame */
+.glass-frame{
+  position:absolute;
+  top:12%;left:9%;right:9%;
+  height:66%;
+  border:3px solid rgba(255,200,100,.2);
+  box-shadow:
+    inset 0 0 60px rgba(0,0,0,.3),
+    0 0 40px rgba(255,140,40,.08);
+  pointer-events:none;
+}
+/* glass reflections */
+.glass-frame::before{
+  content:'';position:absolute;
+  top:2%;left:3%;width:1.5%;height:94%;
+  background:linear-gradient(to bottom,transparent,rgba(255,255,255,.06),transparent);
+  border-radius:999px;
+}
+.glass-frame::after{
+  content:'';position:absolute;
+  top:2%;left:7%;width:.7%;height:60%;
+  background:rgba(255,255,255,.04);
+  border-radius:999px;
+}
+
+/* window cross bars */
+.window-bar-h{
+  position:absolute;top:12%;left:9%;right:9%;
+  height:2px;background:rgba(255,180,80,.18);
+  pointer-events:none;
+}
+.window-bar-v{
+  position:absolute;top:12%;bottom:22%;
+  width:2px;background:rgba(255,180,80,.18);
+  pointer-events:none;
+}
+
+/* desk */
+.desk{
+  position:absolute;bottom:22%;left:50%;transform:translateX(-50%);
+  width:clamp(200px,55vw,480px);
+  height:clamp(18px,4vw,36px);
+  background:linear-gradient(to bottom,#4a2e0a,#2d1a06);
+  border-radius:4px 4px 0 0;
+  box-shadow:0 4px 20px rgba(0,0,0,.6),0 -2px 8px rgba(255,140,40,.1);
+}
+/* desk lamp */
+.desk-lamp{
+  position:absolute;bottom:calc(22% + clamp(18px,4vw,36px));
+  right:calc(9% + clamp(30px,8vw,80px));
+  display:flex;flex-direction:column;align-items:flex-end;
+}
+.lamp-base{width:clamp(10px,2.5vw,22px);height:clamp(4px,1vw,8px);background:#3a2810;border-radius:3px;}
+.lamp-pole{width:3px;height:clamp(30px,6vw,55px);background:#3a2810;margin-right:clamp(6px,1.5vw,12px);}
+.lamp-head{
+  width:clamp(20px,5vw,45px);height:clamp(10px,2.5vw,22px);
+  background:#2a1c08;border-radius:50% 50% 0 0;
+  box-shadow:0 0 20px rgba(255,200,100,.5),0 8px 20px rgba(255,180,60,.3);
+  margin-right:clamp(3px,.8vw,6px);
+}
+/* laptop on desk */
+.laptop{
+  position:absolute;bottom:calc(22% + clamp(18px,4vw,36px));
+  left:50%;transform:translateX(-50%);
+  width:clamp(40px,10vw,90px);height:clamp(3px,.7vw,6px);
+  background:#1a1408;border-radius:4px 4px 0 0;
+}
+.laptop::before{
+  content:'';position:absolute;bottom:100%;left:5%;right:5%;
+  height:clamp(26px,6.5vw,58px);
+  background:linear-gradient(135deg,#0d1a2a,#0a1218);
+  border-radius:4px 4px 0 0;border:1px solid rgba(255,255,255,.1);
+}
+.laptop::after{
+  content:'';position:absolute;bottom:100%;left:15%;right:15%;
+  top:clamp(-25px,-6vw,-55px);
+  background:linear-gradient(135deg,#1a3a5a,#0d2030);
+  border-radius:3px;animation:screenGlow 3s ease-in-out infinite;
+}
+@keyframes screenGlow{0%,100%{opacity:.8}50%{opacity:1}}
+
+/* whiskey glass on desk */
+.whiskey{
+  position:absolute;bottom:calc(22% + clamp(18px,4vw,36px));
+  right:calc(9% + clamp(60px,15vw,160px));
+  width:clamp(8px,2vw,18px);height:clamp(12px,3vw,28px);
+  background:linear-gradient(to bottom,rgba(200,100,20,.6),rgba(150,60,10,.4));
+  border-radius:2px 2px 4px 4px;border:1px solid rgba(255,140,40,.3);
+}
+
+/* chair silhouette */
+.chair{
+  position:absolute;bottom:22%;left:50%;transform:translateX(-60%);
+  width:clamp(28px,7vw,64px);
+  pointer-events:none;
+}
+
+/* ══ CONTENT LAYER ══ */
+#content{
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:14% 10% 26%;
+  gap:2rem;
+  text-align:center;
+}
+
+.don-question{
+  font-family:'Playfair Display',serif;
+  font-style:italic;
+  font-size:clamp(1.1rem,4vw,2rem);
+  color:rgba(255,220,160,.9);
+  text-shadow:0 0 30px rgba(255,140,40,.4);
+  line-height:1.6;
+  opacity:0;
+  animation:fadeSlideUp .9s ease .3s forwards;
+  max-width:600px;
+}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+.btn-kiska{
+  font-family:'Poppins',sans-serif;font-weight:600;
+  font-size:clamp(.85rem,2.5vw,1.05rem);
+  padding:.9rem 2.4rem;
+  background:linear-gradient(135deg,#8b6914,#c9960a,#ffd700);
+  color:#0d0800;border:none;border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 6px 24px rgba(200,140,0,.5);
+  transition:transform .2s,box-shadow .2s;
+  opacity:0;
+  animation:fadeSlideUp .8s ease .9s forwards, pulseGold 2.5s ease-in-out 2s infinite;
+  letter-spacing:.03em;
+}
+.btn-kiska:hover{transform:scale(1.07) translateY(-2px);}
+@keyframes pulseGold{0%,100%{box-shadow:0 6px 24px rgba(200,140,0,.5)}50%{box-shadow:0 6px 36px rgba(200,140,0,.8),0 0 0 8px rgba(200,140,0,.12)}}
+
+#answer-block{
+  display:none;
+  flex-direction:column;align-items:center;gap:1.5rem;
+  animation:popIn .7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+
+.don-answer{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(2.5rem,9vw,5.5rem);
+  background:linear-gradient(135deg,#ffd700,#ff8c00,#ffd700);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:300%;
+  filter:drop-shadow(0 0 24px rgba(255,180,0,.7));
+  animation:goldShimmer 3s linear infinite;
+  line-height:1.1;
+}
+@keyframes goldShimmer{0%{background-position:0%}100%{background-position:300%}}
+
+.don-sub{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(.9rem,3vw,1.3rem);
+  color:rgba(255,200,120,.8);
+  letter-spacing:.05em;
+}
+
+/* video */
+.vid-box{
+  width: auto;
+  height: min(60vh, 70vw * 16/9);
+  aspect-ratio:9/16;
+  border:2px solid rgba(255,180,60,.3);
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 0 40px rgba(255,140,0,.2);
+  background:#000;
+  display:none;
+  margin:0 auto;
+  animation:fadeSlideUp .7s ease both;
+}
+.vid-box video,.vid-box iframe{width:100%;height:100%;border:none;object-fit:cover;}
+
+/* next text */
+#next-text{
+  display:none;
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(1rem,3.5vw,1.6rem);
+  color:rgba(255,220,150,.85);
+  animation:fadeSlideUp .8s ease both;
+}
+.btn-next-page{
+  display:none;
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:clamp(.85rem,2.5vw,1.05rem);
+  padding:.9rem 2.4rem;
+  background:linear-gradient(135deg,#b8860b,#ffd700);
+  color:#0d0800;border:none;border-radius:999px;cursor:pointer;
+  box-shadow:0 6px 24px rgba(200,140,0,.5);
+  transition:transform .2s;
+  text-decoration:none;
+  animation:fadeSlideUp .7s ease both, pulseGold 2.5s ease-in-out infinite;
+}
+.btn-next-page:hover{transform:scale(1.06) translateY(-2px);}
+</style>
+</head>
+<body>
+
+<canvas id="sky-canvas"></canvas>
+
+<!-- Office room elements -->
+<div class="office-room">
+  <div class="ceiling"></div>
+  <div class="ceiling-light"></div>
+  <div class="ceiling-glow"></div>
+  <div class="floor"></div>
+  <div class="wall-left"></div>
+  <div class="wall-right"></div>
+
+  <!-- bookshelf -->
+  <div class="bookshelf" id="bookshelf"></div>
+
+  <!-- glass window frame -->
+  <div class="glass-frame"></div>
+  <div class="window-bar-h" style="top:45%;"></div>
+  <div class="window-bar-v" style="left:36%;"></div>
+  <div class="window-bar-v" style="left:64%;"></div>
+
+  <!-- desk furniture -->
+  <div class="desk"></div>
+  <div class="desk-lamp">
+    <div class="lamp-head"></div>
+    <div class="lamp-pole"></div>
+    <div class="lamp-base"></div>
+  </div>
+  <div class="laptop"></div>
+  <div class="whiskey"></div>
+
+  <!-- chair SVG -->
+  <svg class="chair" viewBox="0 0 64 80" xmlns="http://www.w3.org/2000/svg">
+    <rect x="12" y="0" width="40" height="45" rx="6" fill="#1a1008" stroke="rgba(255,140,40,.2)" stroke-width="1.5"/>
+    <rect x="18" y="45" width="28" height="6" rx="3" fill="#2a1c0a"/>
+    <line x1="22" y1="51" x2="18" y2="78" stroke="#2a1c0a" stroke-width="4" stroke-linecap="round"/>
+    <line x1="42" y1="51" x2="46" y2="78" stroke="#2a1c0a" stroke-width="4" stroke-linecap="round"/>
+    <line x1="16" y1="72" x2="48" y2="72" stroke="#2a1c0a" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<!-- Content -->
+<div id="content">
+  <p class="don-question">"Tujhe Pata Hai Mere upar Kiska Haath Hai ?? 😏"</p>
+
+  <button class="btn-kiska" id="kiskaBtn" onclick="showAnswer()">🤔 Kiska Haath Hai ??</button>
+
+  <div id="answer-block">
+    <p class="don-answer">Bhoomi</p>
+    <p class="don-answer" style="font-size:clamp(1.8rem,6vw,3.5rem);">Badmosh Ka 😎😎</p>
+    <p class="don-sub">— Declared by the streets 🏙️ —</p>
+  </div>
+
+  <!-- ✏️ Replace src with your video -->
+  <div class="vid-box" id="donVid">
+    <video controls playsinline>
+      <source src="40.mp4" type="video/mp4"/>
+    </video>
+  </div>
+
+  <p id="next-text">✨ Aao Ab Thoda Agge Chalte Hai....... ✨</p>
+  <a href="page6.html" class="btn-next-page" id="nextBtn">Chalooo.. 🚀</a>
+</div>
+
+<script>
+/* ══════════════════════════════
+   SKY + CITY CANVAS
+══════════════════════════════ */
+const cv=document.getElementById('sky-canvas');
+const cx=cv.getContext('2d');
+let W,H;
+function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight;drawCity();}
+window.addEventListener('resize',rsz);
+
+/* city buildings data */
+let buildings=[];
+function genBuildings(){
+  buildings=[];
+  const count=Math.floor(W/18)+4;
+  for(let i=0;i<count;i++){
+    const w=14+Math.random()*32;
+    const h=H*.15+Math.random()*H*.45;
+    buildings.push({
+      x:i*(W/count),w,h,
+      windows:[],
+      color:`hsl(${220+Math.random()*20},${10+Math.random()*15}%,${8+Math.random()*12}%)`,
+    });
+    const cols=Math.floor(w/8);
+    const rows=Math.floor(h/10);
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+      buildings[i].windows.push({
+        x:c*8+3,y:r*10+3,
+        lit:Math.random()>.45,
+        litTimer:Math.floor(Math.random()*300),
+        hue:Math.random()>.7?45:200,
+      });
+    }
+  }
+}
+
+/* clouds */
+const clouds=[];
+for(let i=0;i<9;i++) clouds.push({
+  x:Math.random()*3000-500,
+  y:30+Math.random()*H*.28,
+  w:120+Math.random()*200,
+  h:30+Math.random()*50,
+  spd:.25+Math.random()*.4,
+  alpha:.55+Math.random()*.35,
+  puffs:[
+    {ox:0,oy:0,r:.5},
+    {ox:.25,oy:-.3,r:.4},
+    {ox:.5,oy:-.1,r:.45},
+    {ox:.75,oy:-.25,r:.38},
+    {ox:1,oy:0,r:.42},
+  ]
+});
+
+/* stars */
+const stars=[];
+for(let i=0;i<180;i++) stars.push({x:Math.random(),y:Math.random()*.45,r:.4+Math.random()*1.4,a:Math.random(),spd:.005+Math.random()*.01});
+
+let frame=0;
+function drawCity(){
+  cx.clearRect(0,0,W,H);
+
+  /* sky gradient — dusk/night city */
+  const sky=cx.createLinearGradient(0,0,0,H*.55);
+  sky.addColorStop(0,'#04060f');
+  sky.addColorStop(.3,'#07101e');
+  sky.addColorStop(.6,'#0d1a2a');
+  sky.addColorStop(1,'#1a0f04');
+  cx.fillStyle=sky;cx.fillRect(0,0,W,H*.55);
+
+  /* horizon glow */
+  const hg=cx.createRadialGradient(W/2,H*.52,0,W/2,H*.52,W*.6);
+  hg.addColorStop(0,'rgba(255,120,30,.22)');
+  hg.addColorStop(.4,'rgba(255,80,10,.08)');
+  hg.addColorStop(1,'transparent');
+  cx.fillStyle=hg;cx.fillRect(0,0,W,H*.55);
+
+  /* stars */
+  frame++;
+  stars.forEach(s=>{
+    s.a+=s.spd;
+    cx.globalAlpha=.3+.7*Math.abs(Math.sin(s.a));
+    cx.fillStyle='#fff';cx.beginPath();
+    cx.arc(s.x*W,s.y*H*.5,s.r,0,Math.PI*2);cx.fill();
+  });
+  cx.globalAlpha=1;
+
+  /* moon */
+  const mx=W*.8,my=H*.1,mr=clamp(16,4,W*.04);
+  const mg=cx.createRadialGradient(mx-mr*.3,my-mr*.3,mr*.1,mx,my,mr);
+  mg.addColorStop(0,'rgba(255,250,220,.95)');
+  mg.addColorStop(.5,'rgba(255,240,180,.7)');
+  mg.addColorStop(1,'transparent');
+  cx.fillStyle=mg;cx.beginPath();cx.arc(mx,my,mr,0,Math.PI*2);cx.fill();
+  /* moon glow */
+  const mglow=cx.createRadialGradient(mx,my,mr,mx,my,mr*3);
+  mglow.addColorStop(0,'rgba(255,240,180,.12)');mglow.addColorStop(1,'transparent');
+  cx.fillStyle=mglow;cx.beginPath();cx.arc(mx,my,mr*3,0,Math.PI*2);cx.fill();
+
+  /* clouds */
+  clouds.forEach(cl=>{
+    cl.x+=cl.spd;
+    if(cl.x>W+cl.w) cl.x=-cl.w-50;
+    cx.globalAlpha=cl.alpha*.45;
+    cl.puffs.forEach(p=>{
+      const px=cl.x+p.ox*cl.w, py=cl.y+p.oy*cl.h;
+      const r=cl.w*p.r*.5;
+      const grad=cx.createRadialGradient(px,py,0,px,py,r);
+      grad.addColorStop(0,'rgba(30,50,80,.9)');
+      grad.addColorStop(.6,'rgba(20,35,60,.7)');
+      grad.addColorStop(1,'transparent');
+      cx.fillStyle=grad;cx.beginPath();cx.arc(px,py,r,0,Math.PI*2);cx.fill();
+    });
+  });
+  cx.globalAlpha=1;
+
+  /* buildings */
+  if(!buildings.length) genBuildings();
+  const bBase=H*.78;
+  buildings.forEach(b=>{
+    /* building body */
+    cx.fillStyle=b.color;
+    cx.fillRect(b.x,bBase-b.h,b.w,b.h);
+    /* rooftop antenna */
+    cx.strokeStyle='rgba(100,100,120,.5)';cx.lineWidth=1.5;
+    cx.beginPath();cx.moveTo(b.x+b.w/2,bBase-b.h);cx.lineTo(b.x+b.w/2,bBase-b.h-8+Math.random()*2);cx.stroke();
+
+    /* windows */
+    b.windows.forEach(win=>{
+      win.litTimer--;
+      if(win.litTimer<=0){win.lit=Math.random()>.35;win.litTimer=60+Math.floor(Math.random()*400);}
+      if(!win.lit) return;
+      const wx=b.x+win.x, wy=bBase-b.h+win.y;
+      const wc=win.hue===45?`rgba(255,200,80,.8)`:`rgba(150,200,255,.6)`;
+      cx.fillStyle=wc;cx.fillRect(wx,wy,5,6);
+      /* window glow */
+      const wg=cx.createRadialGradient(wx+2.5,wy+3,0,wx+2.5,wy+3,10);
+      wg.addColorStop(0,win.hue===45?'rgba(255,180,60,.2)':'rgba(100,160,255,.15)');
+      wg.addColorStop(1,'transparent');
+      cx.fillStyle=wg;cx.fillRect(wx-8,wy-8,22,22);
+    });
+    /* building edge shine */
+    cx.strokeStyle='rgba(255,150,50,.04)';cx.lineWidth=1;
+    cx.strokeRect(b.x,bBase-b.h,b.w,b.h);
+  });
+
+  /* street glow at base */
+  const sg=cx.createLinearGradient(0,bBase,0,H);
+  sg.addColorStop(0,'rgba(255,100,20,.15)');
+  sg.addColorStop(1,'rgba(0,0,0,0)');
+  cx.fillStyle=sg;cx.fillRect(0,bBase,W,H-bBase);
+  cx.fillStyle='#080603';cx.fillRect(0,bBase,W,H-bBase);
+
+  requestAnimationFrame(drawCity);
+}
+function clamp(v,mn,mx){return Math.min(mx,Math.max(mn,v));}
+rsz();
+genBuildings();
+
+/* ── Generate bookshelf books ── */
+const shelf=document.getElementById('bookshelf');
+const bookColors=['#8b0000','#1a3a5c','#2d4a1a','#4a2d00','#1a1a4a','#5c2d00','#2d1a4a','#4a1a1a'];
+for(let i=0;i<22;i++){
+  const bk=document.createElement('div');
+  bk.className='book';
+  const h=16+Math.random()*22;
+  bk.style.cssText=`height:${h}px;background:${bookColors[Math.floor(Math.random()*bookColors.length)]};opacity:${.5+Math.random()*.5};border-top:1px solid rgba(255,180,80,.15);`;
+  shelf.appendChild(bk);
+}
+
+/* ── Show answer on click ── */
+function showAnswer(){
+  document.getElementById('kiskaBtn').style.display='none';
+  const ab=document.getElementById('answer-block');
+  ab.style.display='flex';
+  /* after 2.5s show video */
+  setTimeout(()=>{
+    const vb=document.getElementById('donVid');
+    vb.style.display='block';
+    const vid=vb.querySelector('video');
+    if(vid){
+      vid.play().catch(()=>{});
+      vid.onended=showNextText;
+    } else {
+      setTimeout(showNextText,3000);
+    }
+  },2500);
+}
+
+function showNextText(){
+  document.getElementById('next-text').style.display='block';
+  setTimeout(()=>document.getElementById('nextBtn').style.display='inline-block',1000);
+}
+</script>
+</body>
+</html>

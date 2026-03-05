@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Grand Finale 🎆</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;min-height:100vh;overflow-x:hidden;font-family:'Poppins',sans-serif;position:relative;display:flex;flex-direction:column;align-items:center;}
+#galaxy-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#firework-canvas{position:fixed;inset:0;z-index:2;pointer-events:none;}
+
+/* ══ TAP TO BEGIN SCREEN ══ */
+#start-screen{
+  position:fixed;inset:0;z-index:999;
+  background:radial-gradient(ellipse at 50% 40%,#1a0030 0%,#000 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.5rem;cursor:pointer;
+}
+.start-emoji{font-size:clamp(3rem,12vw,6rem);animation:startBounce 1.8s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(255,200,0,.6));}
+@keyframes startBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-14px) scale(1.05)}}
+.start-title{font-family:'Great Vibes',cursive;font-size:clamp(2rem,8vw,4rem);background:linear-gradient(135deg,#ffd700,#ff69b4,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300%;animation:rainbowShift 3s linear infinite;text-align:center;padding:0 1rem;}
+.start-hint{font-family:'Poppins',sans-serif;font-size:clamp(.75rem,2.5vw,1rem);color:rgba(255,200,255,.5);letter-spacing:.15em;text-transform:uppercase;animation:hintBlink 1.5s ease-in-out infinite;}
+@keyframes hintBlink{0%,100%{opacity:.4}50%{opacity:1}}
+.start-btn{margin-top:.5rem;padding:.9rem 2.8rem;background:linear-gradient(135deg,#6d00cc,#ff69b4,#ffd700);border:none;border-radius:999px;font-family:'Poppins',sans-serif;font-weight:700;font-size:clamp(.9rem,3vw,1.1rem);color:#fff;cursor:pointer;box-shadow:0 0 30px rgba(200,50,255,.5);animation:btnPulse 2s ease-in-out infinite;letter-spacing:.05em;}
+@keyframes btnPulse{0%,100%{box-shadow:0 0 30px rgba(200,50,255,.5)}50%{box-shadow:0 0 50px rgba(200,50,255,.8),0 0 0 10px rgba(200,50,255,.1)}}
+
+/* ── Curtains ── */
+#curtain-left,#curtain-right{position:fixed;top:0;bottom:0;width:51%;z-index:200;background:linear-gradient(180deg,#1a0030 0%,#2d0050 40%,#1a0030 100%);transition:transform 1.8s cubic-bezier(.77,0,.175,1);}
+#curtain-left{left:0;transform:translateX(0);}
+#curtain-right{right:0;transform:translateX(0);}
+#curtain-left::before,#curtain-right::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(255,255,255,.04) 18px,rgba(255,255,255,.04) 20px);}
+#curtain-left.open{transform:translateX(-100%);}
+#curtain-right.open{transform:translateX(100%);}
+
+body::before{content:'';position:fixed;inset:0;z-index:1;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(120,0,200,.12),transparent 70%),radial-gradient(ellipse 60% 40% at 30% 60%,rgba(200,0,120,.1),transparent 60%);pointer-events:none;}
+
+/* ── Content ── */
+#content{position:relative;z-index:10;min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem 4rem;gap:0;text-align:center;}
+.crown-anim{font-size:clamp(3rem,10vw,6rem);animation:crownFloat 3s ease-in-out infinite,crownFadeIn 1s ease .5s both;filter:drop-shadow(0 0 20px rgba(255,200,0,.7));display:block;}
+@keyframes crownFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-16px) rotate(3deg)}}
+@keyframes crownFadeIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.main-title{font-family:'Great Vibes',cursive;font-size:clamp(3rem,12vw,8rem);background:linear-gradient(135deg,#ffd700,#ff69b4,#a78bfa,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300%;filter:drop-shadow(0 0 30px rgba(255,100,200,.5));animation:titleReveal 1s ease 1s both,rainbowShift 5s linear 2s infinite;line-height:1;}
+@keyframes titleReveal{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes rainbowShift{0%{background-position:0%}100%{background-position:300%}}
+.name-big{font-family:'Great Vibes',cursive;font-size:clamp(2.5rem,9vw,6.5rem);background:linear-gradient(135deg,#ff69b4,#ffd700,#a78bfa,#ff69b4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300%;animation:titleReveal 1s ease 1.4s both,rainbowShift 4s linear 2.5s infinite;line-height:1.05;}
+.sparkle-div{display:flex;align-items:center;justify-content:center;gap:.8rem;margin:1.2rem 0;animation:fadeIn 1s ease 1.8s both;}
+.sparkle-div span.line{width:clamp(40px,12vw,100px);height:1px;background:linear-gradient(90deg,transparent,rgba(255,200,100,.6),transparent);}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.letter-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,200,100,.2);border-radius:20px;padding:clamp(1.5rem,4vw,2.5rem) clamp(1.2rem,4vw,2.5rem);backdrop-filter:blur(20px);box-shadow:0 8px 50px rgba(150,0,200,.2),inset 0 1px 0 rgba(255,255,255,.1);max-width:640px;width:90%;animation:fadeIn 1s ease 2s both;margin:1rem 0;}
+.letter-line{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(.9rem,3vw,1.25rem);color:rgba(255,240,200,.88);line-height:1.9;text-shadow:0 0 12px rgba(200,100,255,.2);}
+.letter-line+.letter-line{margin-top:.8rem;}
+.divider-sm{width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,200,100,.3),transparent);margin:1rem auto;}
+.verse{font-family:'Caveat',cursive;font-weight:700;font-size:clamp(1rem,3.5vw,1.5rem);color:rgba(255,220,150,.9);text-align:center;line-height:1.7;}
+.big-wish{font-family:'Great Vibes',cursive;font-size:clamp(2rem,7vw,4.5rem);background:linear-gradient(135deg,#ffd700,#ff8c00,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300%;filter:drop-shadow(0 0 20px rgba(255,180,0,.6));animation:rainbowShift 3s linear infinite,fadeIn 1s ease 2.5s both;opacity:0;}
+.big-wish.show{opacity:1;}
+.end-badge{background:linear-gradient(135deg,rgba(255,100,200,.15),rgba(150,0,255,.15));border:1px solid rgba(255,200,100,.2);border-radius:14px;padding:1rem 1.8rem;font-family:'Caveat',cursive;font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(255,220,180,.75);animation:fadeIn 1s ease 3s both;letter-spacing:.03em;}
+.fheart{position:fixed;font-size:1.2rem;pointer-events:none;z-index:3;animation:floatHeart linear infinite;}
+@keyframes floatHeart{0%{transform:translateY(110vh) rotate(0deg);opacity:1;}100%{transform:translateY(-80px) rotate(720deg);opacity:0;}}
+
+/* music button */
+#musicBtn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:500;width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,200,255,.4);background:rgba(80,0,120,.6);backdrop-filter:blur(10px);font-size:1.3rem;cursor:pointer;box-shadow:0 0 20px rgba(200,100,255,.4);display:none;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+
+<!-- 🎵 Replace "your-song.mp3" with your actual music file -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="bg.mp3" type="audio/mpeg"/>
+</audio>
+
+<button id="musicBtn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
+
+<!-- ══ TAP TO BEGIN ══ -->
+<div id="start-screen" onclick="startPage()">
+  <div class="start-emoji">🎂</div>
+  <div class="start-title">Unbox Krne Ke Liye ✨<br/></div>
+  <p class="start-hint">tap anywhere to begin</p>
+  <button class="start-btn">✨ Open ✨</button>
+</div>
+
+<!-- Curtains -->
+<div id="curtain-left"></div>
+<div id="curtain-right"></div>
+<canvas id="galaxy-canvas"></canvas>
+<canvas id="firework-canvas"></canvas>
+
+<div id="content">
+  <span class="crown-anim">👑</span>
+  <h1 class="main-title">Happy Birthday</h1>
+  <h2 class="name-big">Bhoomi 🎂</h2>
+  <div class="sparkle-div"><span class="line"></span><span style="font-size:1.6rem;">💖</span><span class="line"></span></div>
+  <div class="letter-card">
+    <p class="letter-line">
+      Ek hi bandi mein itni saari personalities hain —<br/>
+      Singer, Rapper, Don, Kidnapper, Teacher... 😂<br/>
+    </p>
+    <div class="divider-sm"></div>
+    <p class="verse">
+      Tujhe dekhne ka acha Khasa Ticket lagna Chahiye 🏆 —<br/>
+
+      Ha pr muje VIp Pass chahiye wo bhi FREE!! 😎 
+  
+    </p>
+    <div class="divider-sm"></div>
+    <p class="letter-line">
+      It's your day enjoy in your style 💫 — <br/>
+      Aur haan, apne fans ko thoda aur entertain kariyo, <br>
+      warna next year se ticket aur mehenga ho jayega! 😜 
+    </p>
+  </div>
+  <p class="big-wish" id="bigWish">Happy Birthday, Badmosh! 🎉</p>
+  <div class="sparkle-div" style="margin-top:1.2rem;"><span class="line"></span><span style="font-size:1.2rem;">🎊</span><span class="line"></span></div>
+  <div class="end-badge">✨ Made with ❤️, loads of sarcasm 😏, just for you ✨</div>
+</div>
+
+<script>
+/* ══ START PAGE — user tap unlocks audio ══ */
+function startPage(){
+  const ss = document.getElementById('start-screen');
+  ss.style.transition = 'opacity .6s ease';
+  ss.style.opacity = '0';
+  setTimeout(()=>ss.style.display='none', 650);
+
+  /* ✅ Play music INSIDE user gesture — guaranteed to work */
+  const bgMusic = document.getElementById('bgMusic');
+  bgMusic.volume = 0.5;
+  bgMusic.play();
+
+  /* Show mute button */
+  const btn = document.getElementById('musicBtn');
+  btn.style.display = 'flex';
+
+  /* Open curtains */
+  setTimeout(()=>{
+    document.getElementById('curtain-left').classList.add('open');
+    document.getElementById('curtain-right').classList.add('open');
+    setTimeout(()=>{
+      document.getElementById('bigWish').classList.add('show');
+      startFireworks();
+      spawnHearts();
+    },2000);
+  },500);
+}
+
+/* ══ Mute toggle ══ */
+let musicMuted = false;
+function toggleMusic(){
+  const bgMusic = document.getElementById('bgMusic');
+  const btn = document.getElementById('musicBtn');
+  if(musicMuted){
+    bgMusic.volume = 0.5; btn.textContent = '🎵';
+    btn.style.boxShadow = '0 0 20px rgba(200,100,255,.4)';
+    musicMuted = false;
+  } else {
+    bgMusic.volume = 0; btn.textContent = '🔇';
+    btn.style.boxShadow = '0 0 10px rgba(255,100,100,.2)';
+    musicMuted = true;
+  }
+}
+
+/* ── Galaxy canvas ── */
+const gc=document.getElementById('galaxy-canvas');
+const gx=gc.getContext('2d');
+function grsz(){gc.width=innerWidth;gc.height=innerHeight;}
+window.addEventListener('resize',grsz);grsz();
+const stars=Array.from({length:280},()=>({x:Math.random(),y:Math.random(),r:.4+Math.random()*1.8,a:Math.random(),spd:.003+Math.random()*.009}));
+const shootStars=[];
+function addShoot(){shootStars.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight*.5,len:60+Math.random()*100,angle:Math.PI/6+Math.random()*.3,life:1,decay:.02+Math.random()*.02});}
+(function galaxyAnim(){
+  gx.clearRect(0,0,gc.width,gc.height);
+  const n1=gx.createRadialGradient(gc.width*.3,gc.height*.4,0,gc.width*.3,gc.height*.4,gc.width*.4);
+  n1.addColorStop(0,'rgba(100,0,180,.08)');n1.addColorStop(1,'transparent');
+  gx.fillStyle=n1;gx.fillRect(0,0,gc.width,gc.height);
+  const n2=gx.createRadialGradient(gc.width*.7,gc.height*.6,0,gc.width*.7,gc.height*.6,gc.width*.35);
+  n2.addColorStop(0,'rgba(200,0,100,.07)');n2.addColorStop(1,'transparent');
+  gx.fillStyle=n2;gx.fillRect(0,0,gc.width,gc.height);
+  stars.forEach(s=>{s.a+=s.spd;gx.globalAlpha=.3+.7*Math.abs(Math.sin(s.a));gx.fillStyle='#fff';gx.beginPath();gx.arc(s.x*gc.width,s.y*gc.height,s.r,0,Math.PI*2);gx.fill();});
+  gx.globalAlpha=1;
+  for(let i=shootStars.length-1;i>=0;i--){
+    const s=shootStars[i];s.life-=s.decay;
+    if(s.life<=0){shootStars.splice(i,1);continue;}
+    gx.globalAlpha=s.life*.6;
+    const ex=s.x+Math.cos(s.angle)*s.len,ey=s.y+Math.sin(s.angle)*s.len;
+    const grad=gx.createLinearGradient(s.x,s.y,ex,ey);
+    grad.addColorStop(0,'rgba(255,255,255,.9)');grad.addColorStop(1,'transparent');
+    gx.strokeStyle=grad;gx.lineWidth=1.5;gx.beginPath();gx.moveTo(s.x,s.y);gx.lineTo(ex,ey);gx.stroke();
+    s.x+=Math.cos(s.angle)*4;s.y+=Math.sin(s.angle)*4;
+  }
+  gx.globalAlpha=1;
+  requestAnimationFrame(galaxyAnim);
+})();
+setInterval(addShoot,1800);
+
+/* ── Fireworks ── */
+const fw=document.getElementById('firework-canvas');
+const fx=fw.getContext('2d');
+function frsz(){fw.width=innerWidth;fw.height=innerHeight;}
+window.addEventListener('resize',frsz);frsz();
+const particles=[];
+const FW_COLORS=['#ffd700','#ff69b4','#a78bfa','#00e5ff','#ff4444','#a8ff78','#ff8c00','#fff'];
+function burst(x,y){
+  const count=32+Math.floor(Math.random()*24);
+  const c=FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+  for(let i=0;i<count;i++){
+    const angle=(i/count)*Math.PI*2,spd=2+Math.random()*5;
+    particles.push({x,y,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,life:1,decay:.015+Math.random()*.02,r:2+Math.random()*2.5,color:c,trail:[]});
+  }
+}
+let fwRunning=false;
+function startFireworks(){
+  fwRunning=true;
+  const pts=[[.2,.3],[.8,.3],[.5,.15],[.15,.55],[.85,.5],[.5,.4],[.3,.2],[.7,.25]];
+  pts.forEach((p,i)=>setTimeout(()=>burst(p[0]*innerWidth,p[1]*innerHeight),i*220));
+  setInterval(()=>{if(!fwRunning)return;burst(innerWidth*(.15+Math.random()*.7),innerHeight*(.1+Math.random()*.5));},900);
+}
+(function fwAnim(){
+  fx.clearRect(0,0,fw.width,fw.height);
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.trail.push({x:p.x,y:p.y});if(p.trail.length>5)p.trail.shift();
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.life-=p.decay;
+    if(p.life<=0){particles.splice(i,1);continue;}
+    p.trail.forEach((t,ti)=>{fx.globalAlpha=p.life*(ti/p.trail.length)*.4;fx.fillStyle=p.color;fx.beginPath();fx.arc(t.x,t.y,p.r*.5,0,Math.PI*2);fx.fill();});
+    fx.globalAlpha=p.life;
+    const pg=fx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+    pg.addColorStop(0,'rgba(255,255,255,.9)');pg.addColorStop(.4,p.color);pg.addColorStop(1,'transparent');
+    fx.fillStyle=pg;fx.beginPath();fx.arc(p.x,p.y,p.r,0,Math.PI*2);fx.fill();
+  }
+  fx.globalAlpha=1;requestAnimationFrame(fwAnim);
+})();
+
+/* ── Floating hearts ── */
+function spawnHearts(){
+  const emojis=['💖','💗','💓','💕','💞','🩷','✨','🌸','🎉','🎊','⭐','🌟'];
+  for(let i=0;i<18;i++){
+    setTimeout(()=>{
+      const h=document.createElement('span');h.className='fheart';
+      h.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      h.style.left=Math.random()*100+'vw';
+      h.style.animationDuration=(5+Math.random()*7)+'s';
+      h.style.animationDelay='0s';
+      h.style.fontSize=(12+Math.random()*16)+'px';
+      document.body.appendChild(h);setTimeout(()=>h.remove(),14000);
+    },i*300);
+  }
+  setInterval(()=>{
+    const h=document.createElement('span');h.className='fheart';
+    h.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    h.style.left=Math.random()*100+'vw';
+    h.style.animationDuration=(5+Math.random()*7)+'s';
+    h.style.animationDelay='0s';
+    h.style.fontSize=(12+Math.random()*16)+'px';
+    document.body.appendChild(h);setTimeout(()=>h.remove(),14000);
+  },500);
+}
+</script>
+</body>
+</html>

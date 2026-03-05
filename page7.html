@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chaliye Shuru Krte Hai 🙂</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:radial-gradient(ellipse at 50% 30%,#2a1f0e 0%,#130e06 60%,#0a0804 100%);
+  min-height:100vh;
+  overflow:hidden;
+  font-family:'Poppins',sans-serif;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+
+/* ── Dust particles ── */
+#dust-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ── Ambient lamp glow ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 50% 20%,rgba(255,180,80,.1) 0%,transparent 70%);
+  pointer-events:none;z-index:1;
+}
+
+/* ── Bookshelf background ── */
+.shelf-bg{
+  position:fixed;bottom:0;left:0;right:0;height:18%;
+  background:linear-gradient(to top,#1a0e04,#2a1a08);
+  z-index:1;
+}
+.shelf-bg::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(to right,#5c3a10,#8b6914,#5c3a10);
+}
+
+/* ══════════════════════════════
+   THE BOOK
+══════════════════════════════ */
+#book-container{
+  position:relative;z-index:10;
+  width:min(90vw,760px);
+  height:min(94vh,680px);
+  perspective:1400px;
+}
+
+.book{
+  width:100%;height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+}
+
+/* book shadow */
+.book::after{
+  content:'';position:absolute;
+  bottom:-20px;left:5%;right:5%;height:20px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(0,0,0,.6),transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+
+/* ── Book spine / cover base ── */
+.book-cover-back{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,#3d2006,#1e1003);
+  border-radius:4px 12px 12px 4px;
+  box-shadow:-4px 0 12px rgba(0,0,0,.5);
+}
+.book-spine{
+  position:absolute;top:0;bottom:0;left:0;width:clamp(16px,4vw,28px);
+  background:linear-gradient(to right,#5c3010,#3d2006,#2a1503);
+  border-radius:4px 0 0 4px;
+  box-shadow:inset -3px 0 8px rgba(0,0,0,.4);
+}
+
+/* ── A single page ── */
+.page{
+  position:absolute;inset:0;inset-inline-start:clamp(16px,4vw,28px);
+  border-radius:0 8px 8px 0;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  transition:transform .85s cubic-bezier(.645,.045,.355,1);
+  transform:rotateY(0deg);
+  cursor:pointer;
+}
+.page.turned{ transform:rotateY(-180deg); }
+
+/* page front/back faces */
+.page-front,.page-back{
+  position:absolute;inset:0;
+  border-radius:0 8px 8px 0;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.page-front{
+  background:linear-gradient(135deg,#fdf6e3,#f5e9c8,#fdf6e3);
+  border:1px solid rgba(139,105,20,.2);
+  box-shadow:inset -6px 0 20px rgba(0,0,0,.08);
+}
+.page-back{
+  background:linear-gradient(225deg,#fdf6e3,#f5e9c8,#fdf6e3);
+  transform:rotateY(180deg);
+  border:1px solid rgba(139,105,20,.2);
+  box-shadow:inset 6px 0 20px rgba(0,0,0,.08);
+}
+/* page lines */
+.page-front::before,.page-back::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(139,105,20,.12) 27px,rgba(139,105,20,.12) 28px);
+  pointer-events:none;
+}
+/* page curl shadow */
+.page-front::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:18px;
+  background:linear-gradient(to left,rgba(0,0,0,.08),transparent);
+  pointer-events:none;
+}
+
+/* stacked pages effect */
+.page-stack{
+  position:absolute;inset:0;inset-inline-start:clamp(16px,4vw,28px);
+  border-radius:0 8px 8px 0;
+  pointer-events:none;
+}
+.page-stack::before,.page-stack::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#fdf0d0,#f0e0b0);
+  border-radius:0 8px 8px 0;
+  border:1px solid rgba(139,105,20,.15);
+}
+.page-stack::before{transform:translateX(2px);z-index:-1;}
+.page-stack::after {transform:translateX(4px);z-index:-2;opacity:.7;}
+
+/* ── Page content ── */
+.page-content{
+  padding:clamp(.4rem,2vw,1rem);
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.5rem;position:relative;z-index:1;
+}
+
+/* page number */
+.pg-num{
+  position:absolute;bottom:clamp(.5rem,2vw,1rem);
+  font-family:'Caveat',cursive;font-size:.85rem;
+  color:rgba(139,105,20,.5);
+}
+.pg-num-left{left:1.5rem;}
+.pg-num-right{right:1.5rem;}
+
+/* ── Text card on page ── */
+.text-card{
+  background:rgba(255,240,200,.6);
+  border:1.5px solid rgba(139,105,20,.3);
+  border-radius:10px;
+  padding:.4rem 1rem;
+  box-shadow:0 4px 20px rgba(139,105,20,.15),inset 0 1px 0 rgba(255,255,255,.8);
+  width:90%;max-width:420px;
+  text-align:center;
+}
+.card-emoji{font-size:clamp(1.8rem,6vw,3.2rem);display:block;margin-bottom:.5rem;}
+.card-text{
+  font-family:'Caveat',cursive;
+  font-size:clamp(1.4rem,5vw,2.2rem);
+  color:#3d2206;
+  line-height:1.4;
+  font-weight:700;
+}
+.card-subtext{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(.75rem,2.5vw,1rem);
+  color:rgba(80,50,10,.65);
+  margin-top:.4rem;
+}
+
+/* video on page */
+.vid-on-page{
+  width: auto;
+  height: 72%;
+  aspect-ratio:9/16;
+  border:2px solid rgba(139,105,20,.3);
+  border-radius:8px;overflow:hidden;
+  background:#000;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  flex-shrink:0;
+}
+.vid-on-page video,.vid-on-page iframe{width:100%;height:100%;object-fit:cover;border:none;}
+
+/* flip hint */
+.flip-hint{
+  font-family:'Caveat',cursive;font-size:clamp(.8rem,2.5vw,1rem);
+  color:rgba(139,105,20,.6);
+  display:flex;align-items:center;gap:.4rem;
+  animation:hintPulse 2s ease-in-out infinite;
+  position:absolute;bottom:clamp(.5rem,2vw,1.2rem);right:clamp(1rem,3vw,2rem);
+}
+@keyframes hintPulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── Final zoom text ── */
+.final-text{
+  font-family:'Caveat',cursive;
+  font-size:clamp(1.1rem,4vw,1.9rem);
+  color:#3d2206;line-height:1.5;text-align:center;font-weight:700;
+  display:none;
+}
+.final-text.zoom-in{
+  display:block;
+  animation:bookZoom .9s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes bookZoom{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+
+.btn-chale{
+  display:none;
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:clamp(.85rem,2.5vw,1.05rem);
+  padding:.85rem 2.2rem;
+  background:linear-gradient(135deg,#5c3a10,#8b6914,#c9960a);
+  color:#fff;border:none;border-radius:999px;cursor:pointer;
+  box-shadow:0 6px 24px rgba(100,60,0,.45);
+  transition:transform .2s;text-decoration:none;
+  animation:pulseBtn 2.5s ease-in-out infinite;
+}
+.btn-chale.show{display:inline-block;}
+.btn-chale:hover{transform:scale(1.06) translateY(-2px);}
+@keyframes pulseBtn{0%,100%{box-shadow:0 6px 24px rgba(100,60,0,.45)}50%{box-shadow:0 6px 36px rgba(100,60,0,.75),0 0 0 8px rgba(100,60,0,.1)}}
+
+/* sarcasm stamp */
+.sarcasm-stamp{
+  position:absolute;top:10%;right:5%;
+  font-family:'Poppins',sans-serif;font-size:clamp(.5rem,1.5vw,.75rem);font-weight:700;
+  color:rgba(180,40,40,.45);border:2px solid rgba(180,40,40,.35);
+  padding:.2rem .5rem;border-radius:4px;
+  transform:rotate(8deg);letter-spacing:.1em;text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+
+<canvas id="dust-canvas"></canvas>
+<div class="shelf-bg"></div>
+
+<div id="book-container">
+  <div class="book" id="theBook">
+    <div class="book-cover-back"></div>
+    <div class="book-spine"></div>
+    <div class="page-stack"></div>
+
+    <!-- Pages injected by JS -->
+  </div>
+</div>
+
+<script>
+/* ── Dust particles ── */
+const dc=document.getElementById('dust-canvas');
+const dx=dc.getContext('2d');
+function drsz(){dc.width=innerWidth;dc.height=innerHeight;}
+window.addEventListener('resize',drsz);drsz();
+const dusts=Array.from({length:60},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:.5+Math.random()*1.5,spd:.15+Math.random()*.35,drift:(Math.random()-.5)*.3,a:Math.random()}));
+(function dustAnim(){dx.clearRect(0,0,dc.width,dc.height);dusts.forEach(d=>{d.y-=d.spd;d.x+=d.drift;d.a+=.005;if(d.y<-5){d.y=dc.height+5;d.x=Math.random()*dc.width;}dx.globalAlpha=.15+.25*Math.abs(Math.sin(d.a));dx.fillStyle='#d4a060';dx.beginPath();dx.arc(d.x,d.y,d.r,0,Math.PI*2);dx.fill();});dx.globalAlpha=1;requestAnimationFrame(dustAnim);})();
+
+/* ══════════════════════════════════════
+   ✏️  ADD YOUR VIDEOS HERE
+   {type:'file',src:'video.mp4',label:'Vella Moment 1'}
+   {type:'youtube',id:'YT_ID',label:'...'}
+══════════════════════════════════════ */
+const VIDEOS=[
+  {type:'file',src:'72.mp4',label:'Dukh No. -1 🙃'},
+  {type:'file',src:'38.mp4',label:'Dukh No. -2 😑'},
+  {type:'file',src:'35.mp4',label:'Dukh No. -3 🤦'},
+];
+
+/* ── Build pages ── */
+const book=document.getElementById('theBook');
+const pages=[];
+let currentPage=0;
+
+function makePage(zIndex){
+  const pg=document.createElement('div');
+  pg.className='page';
+  pg.style.zIndex=zIndex;
+  const front=document.createElement('div');front.className='page-front';
+  const back=document.createElement('div'); back.className='page-back';
+  pg.appendChild(front);pg.appendChild(back);
+  book.appendChild(pg);
+  pages.push({el:pg,front,back});
+  return pages[pages.length-1];
+}
+
+// Page 0 front: opening title card
+// Page 0 back: video 1 (right side when page 0 turned shows page 1 front as left, page 0 back as right)
+// We treat book as: each "spread" = current page back + next page front visible after flip
+
+const totalPages=VIDEOS.length+2; // title + videos + final
+// Build pages in reverse z-order
+for(let i=totalPages;i>=0;i--) makePage(i);
+
+// Populate page fronts & backs
+function populatePage(idx,frontEl,backEl){
+  if(idx===0){
+    // Front cover (opening page)
+    frontEl.innerHTML=`
+      <div class="page-content">
+        <div class="text-card" style="animation:fadeSlideUp .7s ease .4s both;opacity:0">
+          <span class="card-emoji">📖</span>
+          <div class="card-text">Sala Ye Dukh Kahe Khatam Nahi Hota Be 🙂</div>
+          <div class="card-subtext">— Aapka Swagat Hai Is Dukh Geeta Me  —</div>
+        </div>
+        <div class="flip-hint">Padhna hai? Palto → ➡️</div>
+        <span class="pg-num pg-num-right">1</span>
+      </div>`;
+  } else if(idx<=VIDEOS.length){
+    const v=VIDEOS[idx-1];
+    // video page
+    frontEl.innerHTML=`
+      <div class="page-content">
+        <div class="sarcasm-stamp">Evidence ${idx}</div>
+        <div class="text-card" style="margin-bottom:.5rem;">
+          <div class="card-text" style="font-size:clamp(1rem,3.5vw,1.5rem);">${v.label}</div>
+        </div>
+        <div class="vid-on-page" id="vid-front-${idx}"></div>
+        <div class="flip-hint">${idx<VIDEOS.length?'Aur Dekho →':'Last One →'}</div>
+        <span class="pg-num pg-num-right">${idx*2}</span>
+      </div>`;
+  } else {
+    // final page front
+    frontEl.innerHTML=`
+      <div class="page-content">
+        <div class="final-text" id="finalText"></div>
+        <a href="page8.html" class="btn-chale" id="chaleBtn">Dikhao Dikhaoo... 😏</a>
+        <span class="pg-num pg-num-right">THE END</span>
+      </div>`;
+  }
+  // back face of page idx = left side of spread idx+1
+  if(idx<VIDEOS.length){
+    backEl.innerHTML=`
+      <div class="page-content">
+        <div class="sarcasm-stamp" style="right:auto;left:5%;transform:rotate(-8deg)">Sahi Pakde Hai 😏</div>
+        <div class="card-text" style="color:#3d2206;font-family:'Caveat',cursive;font-size:clamp(1rem,3.5vw,1.8rem);">...aur ye toh sirf shuruwaat hai 🙃</div>
+        <span class="pg-num pg-num-left">${idx*2+1}</span>
+      </div>`;
+  } else {
+    backEl.innerHTML=`<div class="page-content"><span class="pg-num pg-num-left">${idx*2+1}</span></div>`;
+  }
+}
+
+pages.forEach((p,i)=>populatePage(i,p.front,p.back));
+
+// Flip function — last page (final text) is static, no more flipping
+function flipPage(){
+  // If we're already on the last page (final text visible), do nothing
+  if(currentPage>=pages.length-1) return;
+  // Also stop one flip before: when next flip would be the final, still allow it
+  pages[currentPage].el.classList.add('turned');
+  currentPage++;
+  // Load video on newly visible page
+  setTimeout(()=>loadVideoOnPage(currentPage),500);
+  // On last flip show final text
+  if(currentPage===VIDEOS.length+1){
+    setTimeout(showFinalText,900);
+    // Remove click listener so the final page can't be flipped away
+    document.getElementById('book-container').removeEventListener('click',flipPage);
+  }
+}
+
+function loadVideoOnPage(idx){
+  if(idx<1||idx>VIDEOS.length) return;
+  const v=VIDEOS[idx-1];
+  const container=document.getElementById(`vid-front-${idx}`);
+  if(!container||container.dataset.loaded) return;
+  container.dataset.loaded='1';
+  if(v.type==='youtube'){
+    container.innerHTML=`<iframe src="https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0" allowfullscreen allow="autoplay"></iframe>`;
+  } else {
+    container.innerHTML=`<video autoplay controls playsinline style="width:100%;height:100%;object-fit:cover;"><source src="${v.src}" type="video/mp4"/></video>`;
+  }
+}
+
+// Click anywhere on book to flip (named so it can be removed on final page)
+document.getElementById('book-container').addEventListener('click',flipPage);
+
+function showFinalText(){
+  const ft=document.getElementById('finalText');
+  if(!ft) return;
+  ft.textContent='Ab Itna Sb Khcuch Dekh Liya Hai to Thoda sa Vella Pan bhi dekh lete hai 😏';
+  ft.classList.add('zoom-in');
+  setTimeout(()=>{
+    const cb=document.getElementById('chaleBtn');
+    if(cb) cb.classList.add('show');
+  },1800);
+}
+
+// Book opening animation on load
+setTimeout(()=>{
+  // Slight open-cover effect
+  pages[0].el.style.transition='transform .001s';
+}, 100);
+</script>
+<style>
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</body>
+</html>

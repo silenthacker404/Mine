@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Me Kya Ladli 🙏</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:linear-gradient(135deg,#fff8e7 0%,#ffecd2 40%,#fff0f5 70%,#e8f4ff 100%);
+  min-height:100vh;overflow-x:hidden;
+  font-family:'Poppins',sans-serif;position:relative;
+}
+
+/* ── Confetti canvas ── */
+#confetti-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+body::before{
+  content:'';position:fixed;inset:0;z-index:1;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(255,200,100,.12),transparent 70%);
+  pointer-events:none;
+}
+
+/* ════════════════════════════
+   SHUTTER ANIMATION
+════════════════════════════ */
+#shutter-wrap{
+  position:fixed;inset:0;z-index:500;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.shutter-slat{
+  flex:1;
+  background:linear-gradient(90deg,#1a1a1a,#2a2a2a,#1a1a1a);
+  transform-origin:top center;
+  transition:transform .55s ease;
+  position:relative;overflow:hidden;
+}
+.shutter-slat::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.03) 40px,rgba(255,255,255,.03) 42px);
+}
+/* alternating shutter colors */
+.shutter-slat:nth-child(even){background:linear-gradient(90deg,#222,#333,#222);}
+/* handle dot */
+.shutter-slat:last-child::after{
+  content:'🔩';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:clamp(.8rem,2vw,1.4rem);opacity:.5;
+}
+.shutter-slat.open{transform:scaleY(0);}
+
+#skip-shutter{
+  position:fixed;bottom:6%;right:5%;z-index:510;
+  font-family:'Poppins',sans-serif;font-size:.75rem;
+  background:rgba(255,255,255,.15);color:rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.2);border-radius:999px;
+  padding:.35rem .9rem;cursor:pointer;
+}
+
+/* ════════════════════════════
+   MAIN CONTENT
+════════════════════════════ */
+#main-content{
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:none;flex-direction:column;align-items:center;
+  padding:3rem 1rem 5rem;gap:2.5rem;
+}
+
+/* opening headline */
+.headline-card{
+  background:rgba(255,255,255,.75);
+  border:2px solid rgba(255,180,60,.35);
+  border-radius:20px;
+  padding:1.5rem 2rem;
+  box-shadow:0 8px 40px rgba(255,150,60,.15),inset 0 1px 0 rgba(255,255,255,.9);
+  text-align:center;
+  backdrop-filter:blur(12px);
+  animation:popCard .8s cubic-bezier(.34,1.56,.64,1) both;
+  max-width:500px;width:90%;
+}
+@keyframes popCard{from{opacity:0;transform:scale(.5) rotate(-4deg)}to{opacity:1;transform:scale(1) rotate(0deg)}}
+
+.headline-emoji{font-size:clamp(2rem,7vw,3.5rem);display:block;animation:wobbleEmoji 2s ease-in-out infinite;}
+@keyframes wobbleEmoji{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+
+.headline-text{
+  font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(1.6rem,6vw,2.8rem);
+  color:#c05010;
+  text-shadow:0 2px 8px rgba(200,80,20,.2);
+  margin-top:.3rem;
+}
+
+/* ── Vella card + video unit ── */
+.vella-unit{
+  width:90%;max-width:540px;
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+  opacity:0;transform:translateY(30px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.vella-unit.visible{opacity:1;transform:translateY(0);}
+
+.vella-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,240,200,.85));
+  border:2px solid rgba(255,160,50,.4);
+  border-radius:16px;
+  padding:1.2rem 1.8rem;
+  box-shadow:0 6px 30px rgba(255,140,40,.2),inset 0 1px 0 rgba(255,255,255,.9);
+  text-align:center;
+  width:100%;
+  position:relative;overflow:hidden;
+}
+/* diagonal ribbon */
+.vella-card::before{
+  content:attr(data-num);
+  position:absolute;top:10px;right:-20px;
+  background:linear-gradient(135deg,#ff8c00,#ffd700);
+  color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:.65rem;
+  padding:.2rem 2rem;transform:rotate(35deg);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.vella-num{
+  font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(1.4rem,5vw,2.2rem);
+  color:#c05010;
+}
+.vella-sub{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(.75rem,2.5vw,1rem);
+  color:rgba(100,60,20,.65);margin-top:.3rem;
+}
+
+/* video box */
+.vid-box{
+  width: min(72vw, calc(72vh * 9/16));
+  aspect-ratio:9/16;
+  border:2px solid rgba(255,160,50,.35);
+  border-radius:14px;overflow:hidden;
+  background:#000;
+  box-shadow:0 4px 24px rgba(255,120,40,.2);
+  margin:0 auto;
+}
+.vid-box video,.vid-box iframe{width:100%;height:100%;object-fit:cover;border:none;}
+
+/* divider */
+.fun-divider{
+  font-size:1.2rem;letter-spacing:.4em;opacity:.5;
+  animation:divSpin 4s linear infinite;
+}
+@keyframes divSpin{0%,100%{letter-spacing:.4em}50%{letter-spacing:.8em}}
+
+/* ── Navigation ── */
+#next-section{
+  display:none;flex-direction:column;align-items:center;gap:1.5rem;
+  animation:fadeSlideUp .8s ease both;text-align:center;
+}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+.next-msg{
+  font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(1.2rem,4.5vw,2rem);
+  color:#c05010;
+  text-align:center;line-height:1.5;
+}
+.btn-next{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  font-size:clamp(.85rem,2.5vw,1.05rem);
+  padding:.9rem 2.4rem;
+  background:linear-gradient(135deg,#ff6b35,#ff8c00,#ffd700);
+  color:#fff;border:none;border-radius:999px;cursor:pointer;
+  box-shadow:0 6px 24px rgba(255,120,40,.5);
+  transition:transform .2s;text-decoration:none;display:inline-block;
+  animation:pulseFun 2.2s ease-in-out infinite;
+}
+.btn-next:hover{transform:scale(1.07) translateY(-2px);}
+@keyframes pulseFun{0%,100%{box-shadow:0 6px 24px rgba(255,120,40,.5)}50%{box-shadow:0 6px 36px rgba(255,120,40,.8),0 0 0 8px rgba(255,120,40,.12)}}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- SHUTTER -->
+<div id="shutter-wrap" id="shutterWrap"></div>
+<button id="skip-shutter" onclick="openShutter()">Skip →</button>
+
+<!-- MAIN -->
+<div id="main-content">
+
+  <div class="headline-card">
+    <span class="headline-emoji">🙏</span>
+    <div class="headline-text">Me Kya Ladli Ram Ram 🙏</div>
+    <div style="font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(.7rem,2vw,.9rem);color:rgba(120,60,0,.55);margin-top:.4rem;">— Seedhe Kaam Ki Baat —</div>
+  </div>
+
+  <div id="units-container" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:2rem;"></div>
+
+  <div id="next-section">
+    <p class="next-msg">🎉 Aur Kya Dikhaun Tujhe ? 😂<br/>Chal Ab Asli Surprise Dekh!</p>
+    <a href="page9.html" class="btn-next">Asli Surprise Dekho ✨</a>
+  </div>
+
+</div>
+
+<script>
+/* ── Confetti canvas ── */
+const cc=document.getElementById('confetti-canvas');
+const cx=cc.getContext('2d');
+function crsz(){cc.width=innerWidth;cc.height=innerHeight;}
+window.addEventListener('resize',crsz);crsz();
+const CONF_COLORS=['#ff6b35','#ffd700','#ff69b4','#4ecdc4','#a29bfe','#fd79a8','#6c5ce7','#00b894'];
+const confettis=Array.from({length:100},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight-innerHeight,w:6+Math.random()*8,h:3+Math.random()*5,color:CONF_COLORS[Math.floor(Math.random()*CONF_COLORS.length)],spd:.8+Math.random()*2,rot:Math.random()*Math.PI*2,rotSpd:(Math.random()-.5)*.08,drift:(Math.random()-.5)*.5,alpha:.7+Math.random()*.3}));
+(function confAnim(){cx.clearRect(0,0,cc.width,cc.height);confettis.forEach(c=>{c.y+=c.spd;c.x+=c.drift;c.rot+=c.rotSpd;if(c.y>cc.height+10){c.y=-10;c.x=Math.random()*cc.width;}cx.save();cx.translate(c.x,c.y);cx.rotate(c.rot);cx.globalAlpha=c.alpha;cx.fillStyle=c.color;cx.fillRect(-c.w/2,-c.h/2,c.w,c.h);cx.restore();});cx.globalAlpha=1;requestAnimationFrame(confAnim);})();
+
+/* ── Build shutter slats ── */
+const sw=document.getElementById('shutter-wrap');
+const SLAT_COUNT=12;
+for(let i=0;i<SLAT_COUNT;i++){
+  const s=document.createElement('div');s.className='shutter-slat';s.id=`slat-${i}`;sw.appendChild(s);
+}
+
+let shutterOpen=false;
+function openShutter(){
+  if(shutterOpen)return;shutterOpen=true;
+  document.getElementById('skip-shutter').style.display='none';
+  // Stagger each slat rolling up
+  for(let i=0;i<SLAT_COUNT;i++){
+    setTimeout(()=>{
+      document.getElementById(`slat-${i}`).classList.add('open');
+    },i*60);
+  }
+  setTimeout(()=>{
+    sw.style.display='none';
+    launchMain();
+  },SLAT_COUNT*60+620);
+}
+setTimeout(openShutter,600);
+
+/* ════════════════════════════════════
+   ✏️  ADD YOUR VIDEOS HERE
+════════════════════════════════════ */
+const VELLA_VIDEOS=[
+  {src:'39.mp4', type:'file', label:'Vella Pan No. - 1...', sub:'Note Se Bani Boat 🎬'},
+  {src:'37.mp4', type:'file', label:'Vella Pan No. - 2...', sub:'Billu Billu 😼'},
+  {src:'25.mp4', type:'file', label:'Vella Pan No. - 3...', sub:'Gabru Jawaan Hi Khede !! 🔥'},
+];
+
+let unitIdx=0;
+
+function launchMain(){
+  document.getElementById('main-content').style.display='flex';
+  setTimeout(()=>showNextUnit(),600);
+}
+
+function showNextUnit(){
+  if(unitIdx>=VELLA_VIDEOS.length){showEnd();return;}
+  const v=VELLA_VIDEOS[unitIdx];
+  const container=document.getElementById('units-container');
+
+  // divider between units
+  if(unitIdx>0){
+    const div=document.createElement('div');div.className='fun-divider';
+    div.textContent='✨ 🎭 ✨';container.appendChild(div);
+  }
+
+  const unit=document.createElement('div');unit.className='vella-unit';
+
+  // card
+  const card=document.createElement('div');card.className='vella-card';
+  card.setAttribute('data-num',`#${unitIdx+1}`);
+  card.innerHTML=`
+    <div class="vella-num">${v.label}</div>
+    <div class="vella-sub">${v.sub}</div>
+  `;
+
+  // video
+  const vbox=document.createElement('div');vbox.className='vid-box';
+  if(v.type==='youtube'){
+    vbox.innerHTML=`<iframe src="https://www.youtube.com/embed/${v.id}?rel=0" allowfullscreen></iframe>`;
+  } else {
+    vbox.innerHTML=`<video autoplay controls playsinline style="width:100%;height:100%;object-fit:cover;"><source src="${v.src}" type="video/mp4"/></video>`;
+    const vid=vbox.querySelector('video');
+    vid.play().catch(()=>{});
+    vid.onended=()=>{unitIdx++;setTimeout(showNextUnit,600);};
+  }
+
+  unit.appendChild(card);unit.appendChild(vbox);
+  container.appendChild(unit);
+
+  // scroll into view & animate in
+  setTimeout(()=>{
+    unit.classList.add('visible');
+    unit.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+
+  // for YouTube or if video doesn't autoplay, add manual next
+  if(v.type==='youtube'){
+    const nb=document.createElement('button');
+    nb.style.cssText='margin-top:.5rem;font-family:Poppins,sans-serif;font-weight:600;font-size:.85rem;padding:.6rem 1.6rem;background:linear-gradient(135deg,#ff6b35,#ffd700);color:#fff;border:none;border-radius:999px;cursor:pointer;';
+    nb.textContent='Next ▶';
+    nb.onclick=()=>{unitIdx++;nb.remove();setTimeout(showNextUnit,400);};
+    unit.appendChild(nb);
+  }
+}
+
+function showEnd(){
+  const ns=document.getElementById('next-section');
+  ns.style.display='flex';
+  setTimeout(()=>ns.scrollIntoView({behavior:'smooth',block:'center'}),400);
+}
+</script>
+</body>
+</html>

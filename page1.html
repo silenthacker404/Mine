@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Happy Birthday Bhoomi 🎀</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink-deep: #e91e8c;
+    --pink-mid: #f06292;
+    --pink-light: #fce4ec;
+    --pink-pale: #fff0f5;
+    --gold: #f9a8d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(135deg, #fff0f5 0%, #fce4ec 40%, #f8bbd9 70%, #f48fb1 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* ── Floating hearts canvas ── */
+  #hearts-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  /* ── Shimmer overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,182,193,.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,105,180,.20) 0%, transparent 55%);
+    pointer-events: none; z-index: 1;
+  }
+
+  .main-card {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 3rem 2rem;
+    max-width: 700px; width: 90%;
+  }
+
+  /* sparkle crown */
+  .crown {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    display: block;
+    animation: floatCrown 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px #ff69b4);
+  }
+  @keyframes floatCrown { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-14px) rotate(5deg)} }
+
+  .sub-greeting {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(.75rem, 2.5vw, 1rem);
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: #c2185b;
+    margin-bottom: .5rem;
+    animation: fadeSlideDown .8s ease both;
+  }
+
+  .main-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(3.5rem, 12vw, 8rem);
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ad1457, #e91e8c, #ff69b4, #ffb3d1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 4px 16px rgba(233,30,140,.3));
+    animation: fadeSlideUp .9s ease .2s both, shimmerText 4s linear 1.5s infinite;
+    background-size: 300% 100%;
+  }
+  @keyframes shimmerText { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+
+  .name-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: 1.05;
+    background: linear-gradient(135deg, #880e4f, #c2185b, #e91e8c, #f48fb1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeSlideUp .9s ease .5s both;
+    text-shadow: none;
+  }
+
+  .divider {
+    display: flex; align-items: center; justify-content: center; gap: .8rem;
+    margin: 1.2rem 0;
+    animation: fadeIn 1s ease .8s both;
+  }
+  .divider span { width: 60px; height: 2px; background: linear-gradient(90deg,transparent,#e91e8c,transparent); border-radius: 999px; }
+
+  .tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(.9rem, 3vw, 1.3rem);
+    color: #ad1457;
+    letter-spacing: .05em;
+    animation: fadeIn 1.2s ease 1s both;
+    margin-bottom: 2.5rem;
+  }
+
+  /* glitter dots */
+  .glitter-ring {
+    position: absolute; inset: -20px;
+    pointer-events: none;
+    animation: spinRing 12s linear infinite;
+  }
+  @keyframes spinRing { to { transform: rotate(360deg); } }
+
+  .card-inner {
+    background: rgba(255,255,255,.55);
+    border: 2px solid rgba(255,105,180,.35);
+    border-radius: 2rem;
+    padding: 2.5rem 2rem;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 8px 40px rgba(233,30,140,.18), inset 0 1px 0 rgba(255,255,255,.7);
+    position: relative;
+    overflow: hidden;
+  }
+  .card-inner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,182,193,.4), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── CTA Button ── */
+  .cta-btn {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: clamp(.75rem, 2.5vw, 1rem);
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #e91e8c, #f06292);
+    color: #fff;
+    border: none; border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(233,30,140,.45);
+    letter-spacing: .03em;
+    transition: transform .2s, box-shadow .2s;
+    text-decoration: none;
+    animation: pulseCta 2.5s ease-in-out infinite 1.5s, fadeIn 1s ease 1.4s both;
+    position: relative; overflow: hidden;
+  }
+  .cta-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg,rgba(255,255,255,.25),transparent);
+    border-radius: 999px;
+  }
+  .cta-btn:hover { transform: scale(1.06) translateY(-2px); box-shadow: 0 12px 32px rgba(233,30,140,.6); }
+  @keyframes pulseCta { 0%,100%{box-shadow:0 6px 24px rgba(233,30,140,.45)} 50%{box-shadow:0 6px 36px rgba(233,30,140,.75), 0 0 0 8px rgba(233,30,140,.12)} }
+
+  /* ── shared keyframes ── */
+  @keyframes fadeSlideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeSlideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* confetti top */
+  .confetti-row { font-size: 1.4rem; letter-spacing: .3em; animation: fadeIn 1s ease .3s both; margin-bottom: .8rem; }
+
+  /* small floating petals */
+  .petal { position: fixed; font-size: 1.2rem; pointer-events: none; z-index: 2; animation: fallPetal linear infinite; }
+  @keyframes fallPetal {
+    0%  { transform: translateY(-60px) rotate(0deg); opacity: 1; }
+    100%{ transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="hearts-canvas"></canvas>
+
+<div class="main-card">
+  <div class="confetti-row">🌸 ✨ 🎀 ✨ 🌸</div>
+  <span class="crown">👑</span>
+
+  <div class="card-inner mt-4">
+    <p class="sub-greeting">✦ wishing you the most magical day ✦</p>
+
+    <h1 class="main-title">Happy Birthday</h1>
+
+    <div class="divider">
+      <span></span>
+      <span style="font-size:1.4rem">💖</span>
+      <span></span>
+    </div>
+
+    <h2 class="name-title">Bhoomi</h2>
+
+    <p class="tagline">"May every heartbeat today feel like a celebration 🎶"</p>
+
+    <a href="page2.html" class="cta-btn">
+      💕 Or Thoda acha suprise dekhna hai to click kare 💕
+    </a>
+  </div>
+
+  <div class="confetti-row mt-4">🌹 🎂 🌹</div>
+</div>
+
+<script>
+// ── Floating hearts (canvas) ──
+const canvas = document.getElementById('hearts-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, hearts = [];
+
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+
+const HEART_CHARS = ['💖','💗','💓','💕','💞','🩷','❤️','💝'];
+const SIZES = [14,18,22,26,30,36,20,16];
+
+function spawnHeart() {
+  hearts.push({
+    x: Math.random() * W,
+    y: H + 40,
+    char: HEART_CHARS[Math.floor(Math.random()*HEART_CHARS.length)],
+    size: SIZES[Math.floor(Math.random()*SIZES.length)],
+    speedY: .4 + Math.random() * 1.2,
+    speedX: (Math.random()-.5) * .8,
+    alpha: .7 + Math.random() * .3,
+    wobble: Math.random() * Math.PI * 2,
+    wobbleSpeed: .02 + Math.random() * .03,
+    drift: (Math.random()-.5) * 1.5,
+  });
+}
+
+let frame = 0;
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  if (frame++ % 18 === 0) spawnHeart();
+  hearts = hearts.filter(h => h.y > -60);
+  hearts.forEach(h => {
+    h.y -= h.speedY;
+    h.wobble += h.wobbleSpeed;
+    h.x += Math.sin(h.wobble) * h.drift;
+    ctx.globalAlpha = h.alpha;
+    ctx.font = `${h.size}px serif`;
+    ctx.fillText(h.char, h.x, h.y);
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ── Petal spawner ──
+const colors = ['🌸','🌺','🌼','✨'];
+for (let i = 0; i < 12; i++) {
+  const el = document.createElement('span');
+  el.classList.add('petal');
+  el.textContent = colors[Math.floor(Math.random()*colors.length)];
+  el.style.left = Math.random()*100 + 'vw';
+  el.style.animationDuration = (6 + Math.random()*8) + 's';
+  el.style.animationDelay = (-Math.random()*10) + 's';
+  el.style.fontSize = (12 + Math.random()*12) + 'px';
+  document.body.appendChild(el);
+}
+</script>
+</body>
+</html>
